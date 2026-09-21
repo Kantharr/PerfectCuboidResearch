@@ -1,0 +1,28 @@
+# Compiled binaries
+*.exe
+*.o
+*.out
+verify_bin
+route_e_bin
+
+# Python
+__pycache__/
+*.pyc
+
+# PARI/GP runtime artifacts
+gp_history.txt
+pari.log
+route_d/pari_fiber_*.gp
+
+# LaTeX build byproducts (in case the paper source is ever copied in here to run build.sh/make)
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.toc
+build.log
+
+# scratch / working data this repo's own tools produce
+*.csv
+*.txt
