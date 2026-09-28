@@ -26,8 +26,11 @@ This repo does **not** contain the paper's LaTeX source, only the tools.
 ├── route_a_kernel/                                -- kernel decomposition & Gaussian-integer search (§4, Route A)
 ├── route_e/                                       -- Theorem 3.9 criterion scan (§6, Route E)
 ├── route_f/                                       -- squarefree-kernel / survivor scan (§6, Route F, Conjecture 6.3)
-└── route_d/                                       -- elliptic-curve fiber construction (§6, Route D, Conjecture 6.3)
-    └── pari/                                      -- example PARI/GP scripts (quartic → Weierstrass → rank)
+└── route_d/                                       -- elliptic-curve fiber construction (§6, Route D, Conjecture 6.3),
+    │                                                 fiber exclusion (Mordell–Weil sieve), and the Jacobian of the
+    │                                                 cuboid cover C (Theorems 6.4 and 6.5)
+    ├── pari/                                      -- example PARI/GP scripts (quartic → Weierstrass → rank)
+    └── sage/                                      -- SageMath scripts for the Prym surfaces of the 11:3 fiber
 ```
 
 "Route" names (A, D, E, F) are internal research labels, not something the
@@ -48,6 +51,8 @@ discussed under those names throughout development.
   The `route_d` scripts that shell out to `gp` look for it on your `PATH`
   under the name `gp`; if it isn't there, set the `PARI_GP_PATH`
   environment variable to the full path of the `gp` executable.
+- [SageMath](https://www.sagemath.org/) only for `route_d/sage/` (tested
+  with the `sagemath/sagemath:10.9` Docker image).
 - `latexmk` (any TeX distribution) only if you also want to run
   `build.sh`/`make all` — those targets build the paper's PDF and expect
   `perfect_cuboid.tex` to be present alongside these files (i.e. run them
@@ -181,6 +186,78 @@ any brute-force search.
   scripts like these automatically for other fibers rather than requiring
   them to be written by hand.
 
+### Fiber exclusion: the Mordell–Weil sieve on the cuboid cover
+
+On a fiber, a perfect cuboid gives a rational point on the double cover
+`C: W² = F`, `F = mS(m−k)`. These scripts prove `C(ℚ) = ∅` fiber by fiber
+(the 63 excluded fibers of §6). Run them from inside `route_d/`; they write
+their generated PARI files and result tables into the current directory.
+
+- **`route_d_clean_fibers.py`** — enumerates the kernels on a ratio line,
+  tests solvability, searches for points, and classifies each fiber as
+  Case‑1, `y = z`, or clean.
+- **`route_d_fiber_local.py`**, **`route_d_cover_local.py`** — exact `p`-adic
+  solvability tests (Hensel-certified tree search) for the fiber and for the
+  cover `C`.
+- **`route_d_basepoint.gp`** — rational base points on a fiber via its conic
+  and `hyperellratpoints`.
+- **`route_d_fiber_model.py`** — explicit Weierstrass model of a fiber with
+  forward and inverse maps, verified symbolically.
+- **`route_d_sieve_setup.py`** — emits the per-fiber PARI files
+  (`route_d_psiF_<tag>.gp`, `route_d_mwsieve_data_<tag>.gp`) for the sieve.
+- **`route_d_mwsieve.py`** — the staged Mordell–Weil sieve itself.
+- **`route_d_certificate.py`** — an independent certificate (exact `F` at a
+  representative of every residue class, plus a non-residue prime); writes
+  `reps_<tag>.gp`.
+- **`route_d_validate.py`** — ground-truth check of the sieve data against
+  exact values of `F` at actual rational points.
+- **`route_d_batch.py`** / **`route_d_batch_analyze.py`** — run the whole
+  pipeline over a JSON list of fibers and summarize `batch_results.jsonl`.
+- **`route_d_image_model.py`**, **`route_d_coset_sieve.py`**,
+  **`route_d_minlevel.py`**, **`route_d_minlevel2.py`** — the "early death"
+  analysis: an independence benchmark within the image of `E(ℚ)`, the full
+  coset sieve at a fixed level, and the minimal obstruction level per fiber.
+- **`route_d_selmer2.py`** (needs **`route_d_selmer2_p2table.json`** beside
+  it) and **`route_d_selmer2_proofcheck.py`** — an independent 2-Selmer
+  computation for `E(a,b)` by complete 2-descent, and a mechanical check of
+  the written local-image proofs.
+
+### The Jacobian of the cover `C` (Theorems 6.4 and 6.5)
+
+`Jac(C)` splits as `E_{a,b}` times four Prym surfaces of genus-3 double covers
+`D_h` of a quotient curve `E'`. These scripts compute and prove that splitting.
+
+- **`route_d_prym_fiber.gp`**, **`route_d_prym_traces.gp`** — Frobenius traces
+  of the four Prym surfaces, directly on the fiber model.
+- **`route_d_quotients.gp`** — the explicit quotients `D_h: W² = hF` and fast
+  `O(p²)` point counts (`dcount`); **`route_d_quotients_run.gp`** runs it on
+  the 11:3 fiber, and **`cremona_match.gp`** searches Cremona's tables for
+  the resulting trace pairs (it reads `quot_11_3_65_2_1.txt`, the output of
+  the run script).
+- **`route_d_prym_split.gp`** — the reflection construction: trace and norm
+  of `hF` down to `ℚ(u)`, and the genus-1 quotients.
+- **`route_d_structpt.gp`**, **`route_d_structpt_sym.gp`**,
+  **`route_d_structpt_proof.gp`**, **`route_d_structpt_closed_check.gp`** —
+  Theorem 6.4: the four elliptic factors of `Prym(D₁)` and `Prym(D_x)` over
+  `ℚ(t)`, their closed forms, and the proof that the structural points have
+  infinite order.
+- **`route_d_weilres_sym.gp`** — Theorem 6.5: the symbolic proof that the
+  two remaining Prym surfaces are Weil restrictions from `ℚ(√(a²+b²))` of
+  explicit twists, on every fiber. It prints `ALL 25 CHECKS PASSED` only if
+  every check ran.
+- **`route_d_weilres_check.gp`** — an independent point-count check of
+  Theorem 6.5 on 10 fibers (410 surface/prime pairs, all agreeing).
+
+### `sage/` — SageMath scripts (11:3 fiber)
+
+Number-field computations that PARI does not cover conveniently:
+`prym_split.sage` and `prym_twist.sage` (the Prym factors over `ℚ(√130)` and
+their twist data), `prym_psi3_rank.sage` (Simon 2-descent on the ψ₃ curve),
+`quotients.sage` (plane models of the `D_h`) and `sanity.sage` (installation
+check). Run them from `route_d/` as `sage sage/<file>.sage`; `prym_twist.sage`
+reads `sage/prym_split.sage` by that relative path. They were run with the
+`sagemath/sagemath:10.9` Docker image.
+
 ## Reproducing the paper's key computational claims
 
 ```bash
@@ -199,6 +276,11 @@ gcc -O2 -o route_e_bin route_e/route_e.c -lm
 cd route_d
 python3 route_d_inverse_map.py       # self-test: round-trips known points first
 python3 route_d_fiber_pipeline.py    # derives quartics for 7 example fibers, calls PARI/GP, prints each rank
+
+# Theorems 6.4 and 6.5 (the decomposition of Jac(C)), still inside route_d/
+gp -q route_d_structpt_proof.gp < /dev/null    # Theorem 6.4: splitting and infinite-order points over Q(t)
+gp -q route_d_weilres_sym.gp < /dev/null       # Theorem 6.5: prints "ALL 25 CHECKS PASSED"
+gp -q route_d_weilres_check.gp < /dev/null     # point-count cross-check: "ALL AGREE: 410 of 410"
 ```
 
 ## Notes

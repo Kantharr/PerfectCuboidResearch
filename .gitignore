@@ -14,6 +14,17 @@ gp_history.txt
 pari.log
 route_d/pari_fiber_*.gp
 
+# Generated per-fiber PARI files and results written by the route_d sieve pipeline
+route_d/route_d_psiF_*.gp
+route_d/route_d_mwsieve_data_*.gp
+route_d/route_d_alldata_*.gp
+route_d/reps_*.gp
+route_d/fiber_*.json
+*.jsonl
+
+# SageMath preparser output (sage foo.sage writes foo.sage.py)
+*.sage.py
+
 # LaTeX build byproducts (in case the paper source is ever copied in here to run build.sh/make)
 *.aux
 *.log
