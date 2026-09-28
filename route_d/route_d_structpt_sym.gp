@@ -21,8 +21,9 @@ sqpart2(R) =
   my(fn = factor(numerator(R)), fd = factor(denominator(R)), M = 1, rest = 1, c = 1);
   for(i = 1, #fn~, my(g = fn[i,1], e = fn[i,2]); if(type(g) != "t_POL", c *= g^e, M *= g^(e\2); rest *= g^(e%2)));
   for(i = 1, #fd~, my(g = fd[i,1], e = fd[i,2]); if(type(g) != "t_POL", c /= g^e, M /= g^((e+1)\2); rest *= g^(e%2)));
-  my(N = numerator(c)*denominator(c), cc = core(abs(N)));
-  [sign(c)*cc, M * sqrtint(abs(N)/cc) / denominator(c), rest];
+  my(N = numerator(c)*denominator(c), cc = core(abs(N)), res = [sign(c)*cc, M * sqrtint(abs(N)/cc) / denominator(c), rest]);
+  if(res[1] * res[2]^2 * res[3] != R, error("sqpart2: R != c * M^2 * rest"));
+  res;
 }
 symfactors(which) =
 {

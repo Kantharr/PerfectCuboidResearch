@@ -7,6 +7,13 @@ default(parisize, 2000000000);
    [[0, -2*a*b*S*(a^2 - a*b + b^2), 0, a^4*b^4*S^2, 0], [a^4*S, a^4*S^2*(a - b)]]];}
 ratroots(P) = my(fa = factor(P)[,1], R = List()); for(i = 1, #fa, if(poldegree(fa[i]) == 1, listput(R, -polcoeff(fa[i], 0)/polcoeff(fa[i], 1)))); Vec(R);
 c46(c) = my(b2 = 4*c[2], b4 = 2*c[4], b6 = 4*c[5]); [b2^2 - 24*b4, -b2^3 + 36*b2*b4 - 216*b6];
+/* The norm N of hF to Q(u) must be a square in Q(t)(u): (h, T) = (1, B3) for psi1, (x, B1) for psi2.
+   sqpart2 returns [c, M, rest] with N = c * M^2 * rest exactly (it checks the identity itself), so
+   N is a square iff c = 1 and rest = 1.  (Print rest with simplify(): factor() of the unsimplified
+   polynomial returns an empty matrix, which once made a correct result look wrong.) */
+{for(w = 1, 2, my(sp = symfactors(w)[2]);
+   if(sp[1] != 1 || simplify(sp[3]) != 1, error("N is not a square for psi", w, ": c = ", sp[1], ", rest = ", simplify(sp[3])));
+   print("psi", w, ": N = M^2 exactly in Q(t)(u) (c = 1, rest = 1)"))}
 {C = closed(1, 't); names = ["E_A (psi1)", "E_B (psi1)", "E_C (psi2)", "E_D (psi2)"];
  for(k = 1, 4, my(sc = symcurve((k + 1)\2, 2 - (k % 2)), c = C[k][1], P = C[k][2]);
    my(u = c46(c), v = c46(sc[1]), jc = u[1]^3/(u[1]^3 - u[2]^2), jv = v[1]^3/(v[1]^3 - v[2]^2));
