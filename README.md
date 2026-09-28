@@ -247,6 +247,14 @@ their generated PARI files and result tables into the current directory.
   every check ran.
 - **`route_d_weilres_check.gp`** — an independent point-count check of
   Theorem 6.5 on 10 fibers (410 surface/prime pairs, all agreeing).
+- **`route_d_weilres_lvalue.gp`** — the central value `L(E/K, 1)` of an elliptic
+  curve over a real quadratic field by the explicit approximate-functional-equation
+  series; independence of the split point `t0` checks conductor, root number and
+  coefficients. **`route_d_weilres_lvalue_test.gp`** validates it against PARI's
+  `lfun` on small-conductor curves (including over `ℚ(√130)` and two root-number −1
+  cases), and **`route_d_weilres_lvalue_run.gp`** runs it on the ψ₃/ψ₄ curves of the
+  11:3 fiber (set `WHICH`, `T0`, `ZCUT` in a file read first, e.g.
+  `gp -q params.gp route_d_weilres_lvalue_run.gp`; about 2·10⁸ coefficients, 8 GB).
 
 ### `sage/` — SageMath scripts (11:3 fiber)
 
