@@ -1,7 +1,7 @@
 """Batch cuboid-exclusion over clean Route D fibers.
 
-For each fiber (a, b, alpha, beta, gamma):
-  1. base point via conic parametrization + hyperellratpoints (route_d_basepoint.gp)
+For each fiber (a, b, alpha, beta, gamma[, [t, z, u2, u3]]):
+  1. base point: the one given, else conic parametrization + hyperellratpoints (route_d_basepoint.gp)
   2. route_d_sieve_setup.py  (explicit model, proven rank, saturated generators)
   3. per-prime data (PARI, every discrete log / basis / bijection verified)
   4. staged Mordell-Weil sieve, recording death N, killing primes, allowed fractions
@@ -14,6 +14,8 @@ sys.set_int_max_str_digits(0)   # exact coordinates can exceed 4300 digits
 import sympy as sp
 
 GP = os.environ.get("PARI_GP_PATH", "gp")
+# helper scripts live next to this file; generated files go to the current directory
+HERE = os.path.dirname(os.path.abspath(__file__))
 CHAIN = [8, 24, 48, 240, 1680, 5040]
 CERT_MAX_CLASSES = 20000
 CLASS_CAP = 30_000_000
@@ -25,17 +27,18 @@ def gp_run(src, timeout):
 
 def basepoint(a, b, al, be, ga):
     for H in (10**4, 10**6):
-        out = gp_run(f'read("route_d_basepoint.gp"); P = fiberpoints({a},{b},{al},{be},{ga},{H}); if(#P, print(P[1]), print("NONE"));\nquit;\n', 300).stdout.strip().splitlines()
+        out = gp_run(f'read("{HERE.replace(chr(92), "/")}/route_d_basepoint.gp"); P = fiberpoints({a},{b},{al},{be},{ga},{H}); if(#P, print(P[1]), print("NONE"));\nquit;\n', 300).stdout.strip().splitlines()
         if out and out[-1] != "NONE":
             return [abs(int(x)) for x in out[-1].strip("[]").split(",")], H
     return None, None
 
 
-def one(a, b, al, be, ga, log):
+def one(a, b, al, be, ga, log, known_bp=None):
     tag = f"{a}_{b}_{al}_{be}_{ga}"
     rec = dict(a=a, b=b, kernel=[al, be, ga], tag=tag)
     t0 = time.time()
-    bp, H = basepoint(a, b, al, be, ga)
+    # a known base point (e.g. from route_d_fiber_descent.gp) skips the height search
+    bp, H = (known_bp, None) if known_bp else basepoint(a, b, al, be, ga)
     if bp is None:
         src = ("default(parisize,500000000);\n"
                f"E=ellinit([0,-({a*a+b*b})^2,0,{a*a*b*b}*({a*a+b*b})^2,0]); r=ellrank(E); "
@@ -44,7 +47,7 @@ def one(a, b, al, be, ga, log):
         rec.update(status="SKIP: no base point up to height 1e6", line_rank=er[-3:] if len(er) >= 3 else None); return rec
     rec["base"] = bp
     try:
-        so = subprocess.run([sys.executable, "route_d_sieve_setup.py", str(a), str(b), str(al), str(be), str(ga),
+        so = subprocess.run([sys.executable, os.path.join(HERE, "route_d_sieve_setup.py"), str(a), str(b), str(al), str(be), str(ga),
                              *map(str, bp), "5040", "300000", tag], capture_output=True, text=True, timeout=900)
     except subprocess.TimeoutExpired:
         rec.update(status="SKIP: setup timeout (rank/saturation)"); return rec
@@ -91,7 +94,7 @@ def one(a, b, al, be, ga, log):
     # verification
     if 4 * Nd**r <= CERT_MAX_CLASSES:
         try:
-            co = subprocess.run([sys.executable, "route_d_certificate.py", str(a), str(b), str(al), str(be), str(ga),
+            co = subprocess.run([sys.executable, os.path.join(HERE, "route_d_certificate.py"), str(a), str(b), str(al), str(be), str(ga),
                                  *map(str, bp), tag, str(Nd)], capture_output=True, text=True, timeout=5400)
             rec["verification"] = "certificate: " + ("VALID" if "CERTIFICATE: VALID" in co.stdout else "NOT ESTABLISHED")
             rec["cert_tail"] = co.stdout.strip().splitlines()[-4:]
@@ -116,14 +119,14 @@ if __name__ == "__main__":
     if os.path.exists("batch_results.jsonl"):
         done = {json.loads(l)["tag"] for l in open("batch_results.jsonl")}
     for f in fibers:
-        tag = "_".join(map(str, f))
+        tag = "_".join(map(str, f[:5]))
         if tag in done:
             continue
         t0 = time.time()
         try:
-            rec = one(*f, None)
+            rec = one(*f[:5], None, f[5] if len(f) > 5 else None)
         except Exception as e:
-            rec = dict(a=f[0], b=f[1], kernel=f[2:], tag=tag, status=f"ERROR {type(e).__name__}: {e}", tb=traceback.format_exc()[-600:])
+            rec = dict(a=f[0], b=f[1], kernel=f[2:5], tag=tag, status=f"ERROR {type(e).__name__}: {e}", tb=traceback.format_exc()[-600:])
         rec["seconds"] = round(time.time() - t0, 1)
         with open("batch_results.jsonl", "a") as fh:
             fh.write(json.dumps(rec) + "\n")

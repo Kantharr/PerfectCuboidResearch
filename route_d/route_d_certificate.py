@@ -19,6 +19,7 @@ import sympy as sp
 from route_d_fiber_model import build, W_to_fiber
 
 GP = os.environ.get("PARI_GP_PATH", "gp")
+ISOG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "route_d_isogpoints.gp").replace("\\", "/")
 
 
 def main():
@@ -31,6 +32,8 @@ def main():
     L = [int(l.split()[0]) for l in open(f"sieve_data_{tag}.txt") if N % int(l.split()[1]) == 0]
     info = subprocess.run([GP, "-q"], input=f"default(parisize,1000000000);\nEW=ellinit([{W}]); "
                           f"r=ellrank(EW); e=1; while(#r[4] < r[1] && e <= 4, r=ellrank(EW, e, r[4]); e++); "
+                          # ellrank can prove the rank yet list fewer points (43:9): 2-isogeny fallback
+                          f"read(\"{ISOG}\"); if(r[1] == r[2] && #r[4] < r[1], r[4] = isogpts(EW, r[4], r[1], 8)); "
                           f"if(r[1]!=r[2], error(\"rank not proven\")); "
                           f"if(#r[4] != r[1], error(\"generators incomplete\")); G=ellsaturation(EW,r[4],200); "
                           f"print(G); print(elltors(EW)[3]); print(r[1]); "

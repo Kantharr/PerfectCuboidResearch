@@ -212,11 +212,28 @@ their generated PARI files and result tables into the current directory.
 - **`route_d_validate.py`** — ground-truth check of the sieve data against
   exact values of `F` at actual rational points.
 - **`route_d_batch.py`** / **`route_d_batch_analyze.py`** — run the whole
-  pipeline over a JSON list of fibers and summarize `batch_results.jsonl`.
+  pipeline over a JSON list of fibers and summarize `batch_results.jsonl`. A
+  fiber entry may carry a known base point as a sixth element
+  (`[a, b, α, β, γ, [t, z, u₂, u₃]]`, e.g. from `route_d_fiber_descent.gp`),
+  which skips the height search. It can run from any directory; generated files
+  go to the current one.
 - **`route_d_image_model.py`**, **`route_d_coset_sieve.py`**,
   **`route_d_minlevel.py`**, **`route_d_minlevel2.py`** — the "early death"
   analysis: an independence benchmark within the image of `E(ℚ)`, the full
   coset sieve at a fixed level, and the minimal obstruction level per fiber.
+- **`route_d_fiber_descent.gp`** (driver **`route_d_fiber_descent_run.gp`**) —
+  decides whether a fiber has a rational point at all. The fiber is the
+  2-covering of `E_{a,b}` with Kummer class `(σ, −σαγ)`; with a proven rank and
+  2-saturated generators, it has a point iff that class lies in the image of
+  `E(ℚ)/2E(ℚ)`. It checks that the image has dimension exactly rank + 2, and
+  when a point exists it returns an explicit base point. On the 128 clean
+  fibers of the survey it proves that the 60 fibers on lines with nontrivial
+  `Sha[2]` have no rational points, and gives base points (11–18 digits) for
+  the other 5 unresolved ones.
+- **`route_d_isogpoints.gp`** — when `ellrank` proves the rank but lists fewer
+  points (the line 43:9), finds the missing generators on the 2-isogenous
+  curves and maps them back; used by the descent test, `route_d_sieve_setup.py`
+  and `route_d_certificate.py`.
 - **`route_d_selmer2.py`** (needs **`route_d_selmer2_p2table.json`** beside
   it) and **`route_d_selmer2_proofcheck.py`** — an independent 2-Selmer
   computation for `E(a,b)` by complete 2-descent, and a mechanical check of
