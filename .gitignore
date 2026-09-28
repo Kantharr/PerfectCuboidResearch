@@ -37,3 +37,6 @@ build.log
 # scratch / working data this repo's own tools produce
 *.csv
 *.txt
+
+# The paper PDF (and any other PDF) never goes into this repository
+*.pdf
