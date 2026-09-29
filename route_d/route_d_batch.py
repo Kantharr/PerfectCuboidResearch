@@ -17,7 +17,9 @@ GP = os.environ.get("PARI_GP_PATH", "gp")
 # helper scripts live next to this file; generated files go to the current directory
 HERE = os.path.dirname(os.path.abspath(__file__))
 CHAIN = [8, 24, 48, 240, 1680, 5040]
-CERT_MAX_CLASSES = 20000
+# full exact certificate when the class count at death is at most this; above it, the
+# ground-truth cross-check (override with ROUTE_D_CERT_MAX, e.g. for large batches)
+CERT_MAX_CLASSES = int(os.environ.get("ROUTE_D_CERT_MAX", "20000"))
 CLASS_CAP = 30_000_000
 
 

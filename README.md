@@ -216,7 +216,9 @@ their generated PARI files and result tables into the current directory.
   fiber entry may carry a known base point as a sixth element
   (`[a, b, α, β, γ, [t, z, u₂, u₃]]`, e.g. from `route_d_fiber_descent.gp`),
   which skips the height search. It can run from any directory; generated files
-  go to the current one.
+  go to the current one. Fibers with at most `ROUTE_D_CERT_MAX` classes at death (default 20000) get
+  the full exact certificate, the rest the ground-truth cross-check; large batches
+  use a lower value (2500 for the a <= 99 line run).
 - **`route_d_image_model.py`**, **`route_d_coset_sieve.py`**,
   **`route_d_minlevel.py`**, **`route_d_minlevel2.py`** — the "early death"
   analysis: an independence benchmark within the image of `E(ℚ)`, the full
