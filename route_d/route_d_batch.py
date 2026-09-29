@@ -16,11 +16,17 @@ import sympy as sp
 GP = os.environ.get("PARI_GP_PATH", "gp")
 # helper scripts live next to this file; generated files go to the current directory
 HERE = os.path.dirname(os.path.abspath(__file__))
-CHAIN = [8, 24, 48, 240, 1680, 5040]
+# sieve settings; the defaults are the ones used for the survey and the a <= 99 line run.
+# ROUTE_D_CHAIN (levels, each dividing the next and 5040), ROUTE_D_CLASS_CAP, ROUTE_D_STREAM_CAP
+# (stream a lift of up to this many classes instead of stopping; see route_d_mwsieve.run) and
+# ROUTE_D_LMAX (largest prime in the sieve data) override them for hard fibres.
+CHAIN = [int(x) for x in os.environ.get("ROUTE_D_CHAIN", "8,24,48,240,1680,5040").split(",")]
 # full exact certificate when the class count at death is at most this; above it, the
 # ground-truth cross-check (override with ROUTE_D_CERT_MAX, e.g. for large batches)
 CERT_MAX_CLASSES = int(os.environ.get("ROUTE_D_CERT_MAX", "20000"))
-CLASS_CAP = 30_000_000
+CLASS_CAP = int(os.environ.get("ROUTE_D_CLASS_CAP", "30000000"))
+STREAM_CAP = int(os.environ["ROUTE_D_STREAM_CAP"]) if os.environ.get("ROUTE_D_STREAM_CAP") else None
+LMAX = os.environ.get("ROUTE_D_LMAX", "300000")
 
 
 def gp_run(src, timeout):
@@ -50,7 +56,7 @@ def one(a, b, al, be, ga, log, known_bp=None):
     rec["base"] = bp
     try:
         so = subprocess.run([sys.executable, os.path.join(HERE, "route_d_sieve_setup.py"), str(a), str(b), str(al), str(be), str(ga),
-                             *map(str, bp), "5040", "300000", tag], capture_output=True, text=True, timeout=900)
+                             *map(str, bp), "5040", LMAX, tag], capture_output=True, text=True, timeout=900)
     except subprocess.TimeoutExpired:
         rec.update(status="SKIP: setup timeout (rank/saturation)"); return rec
     if not os.path.exists(f"fiber_{tag}.json") or "rank not proven" in so.stderr + so.stdout or so.returncode:
@@ -71,7 +77,7 @@ def one(a, b, al, be, ga, log, known_bp=None):
     from route_d_mwsieve import run
     stats = []
     with contextlib.redirect_stdout(io.StringIO()):
-        cls, hist = run(f"sieve_data_{tag}.txt", r, 2, CHAIN, cap=CLASS_CAP, stats=stats)
+        cls, hist = run(f"sieve_data_{tag}.txt", r, 2, CHAIN, cap=CLASS_CAP, stats=stats, stream_cap=STREAM_CAP)
     rec["history"] = hist
     dead = len(cls) == 0 and hist and hist[-1][3] == 0
     if not dead:

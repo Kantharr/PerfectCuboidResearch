@@ -6,6 +6,18 @@
    isogpts(E, P, rk): E = ellinit over Q, P = known points, rk = proven rank.  Returns rk independent
    points (the known ones first, then new ones), or P unchanged if not enough were found.        */
 
+/* Known generators found by route_d_findgens.gp.  If the environment variable ROUTE_D_KNOWNGENS
+   names a file defining KNOWNGENS = [[a-invariants of the reduced minimal model, [points on it]], ..],
+   knownpts(E) returns those points carried to the model E (empty if E is not listed).           */
+{if(getenv("ROUTE_D_KNOWNGENS"), read(getenv("ROUTE_D_KNOWNGENS")))}
+knownpts(E) =
+{
+  if(type(KNOWNGENS) != "t_VEC", return([]));
+  my(v, m = ellminimalmodel(E, &v));
+  foreach(KNOWNGENS, K, if(K[1] == m[1..5], return(apply(P -> ellchangepointinv(P, v), K[2]))));
+  [];
+}
+
 twotors(E) =
 {
   my(f = factor(elldivpol(E, 2))[, 1], T = List());
@@ -18,6 +30,7 @@ indep(E, P) = #P == 0 || matrank(ellheightmatrix(E, P) + 0.) == #P;
 isogpts(E, P, rk, eff = 8) =
 {
   my(T = twotors(E), vE, mE = ellminimalmodel(E, &vE), G = P);
+  foreach(knownpts(E), R, if(#G < rk && indep(E, concat(G, [R])), G = concat(G, [R])));
   if(#G >= rk, return(G));
   for(i = 1, #T,
     my(I = ellisogeny(E, T[i]), E2 = ellinit(I[1]), r2 = ellrank(E2, eff), j = if(i == 1, 2, 1));

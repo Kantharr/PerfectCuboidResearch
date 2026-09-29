@@ -2,6 +2,7 @@
 
 Usage (from a data directory):
     python route_d_line_run.py AMAX [AMIN]      -> writes lines_<AMIN>_<AMAX>.json (fiber list)
+    python route_d_line_run.py --lines L.json   -> the lines [[a, b], ...] in L.json; writes lines_<L>.json
                                                   and lines_<AMIN>_<AMAX>_status.txt (per line)
     python route_d_batch.py lines_<AMIN>_<AMAX>.json   -> sieves them (resumable)
 
@@ -19,10 +20,15 @@ HERE = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
 
 def main():
-    amax = int(sys.argv[1])
-    amin = int(sys.argv[2]) if len(sys.argv) > 2 else 3
-    lines = [(a, b) for a in range(max(3, amin), amax + 1, 2) if a % 2
-             for b in range(1, a, 2) if math.gcd(a, b) == 1]
+    if sys.argv[1] == "--lines":
+        lines = [tuple(x) for x in json.load(open(sys.argv[2]))]
+        tag = "lines_" + os.path.splitext(os.path.basename(sys.argv[2]))[0]
+    else:
+        amax = int(sys.argv[1])
+        amin = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+        lines = [(a, b) for a in range(max(3, amin), amax + 1, 2) if a % 2
+                 for b in range(1, a, 2) if math.gcd(a, b) == 1]
+        tag = f"lines_{amin}_{amax}"
     src = (f'default(parisize, 1000000000);\nread("{HERE}/route_d_line_fibres.gp");\n'
            + "".join(f'{{my(r = iferr(linefibres({a},{b}), err, [Str("error ", err), 0, []]));'
                      f' print("LINE {a} {b} ", r[1], " | ", r[2], " | ", apply(f -> [f[1],f[2],f[3],f[4],f[5]], r[3]))}}\n'
@@ -43,7 +49,6 @@ def main():
         for e in clean:
             fibers.append([a, b, e[0], e[1], e[2], e[4]])
         status.append(f"{a}:{b}  {st}  rank={rank}  clean={len(clean)}  degenerate={len(ents) - len(clean)}")
-    tag = f"lines_{amin}_{amax}"
     json.dump(fibers, open(f"{tag}.json", "w"))
     open(f"{tag}_status.txt", "w").write("\n".join(status) + "\n")
     bad = [s for s in status if " ok " not in s]

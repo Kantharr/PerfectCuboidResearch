@@ -28,7 +28,17 @@ def load(path, r, nt):
     return data
 
 
-def run(path, r, nt, chain, cap=None, stats=None):
+def _passes(c, P):
+    l, c1, c2, ca, cb, bits = P
+    return bits[(sum(ci * bi for ci, bi in zip(c, cb)) % c2) * c1 + sum(ci * ai for ci, ai in zip(c, ca)) % c1] == "1"
+
+
+def run(path, r, nt, chain, cap=None, stats=None, stream_cap=None):
+    """cap: largest class list that is materialised.  If lifting would exceed it and stream_cap is
+    set (and at least the number of lifted classes), the lift is streamed instead: each lifted class
+    is tested against this stage's primes as it is generated and only survivors are kept (the run
+    stops if the survivors alone exceed cap).  Same result as the materialised lift; the per-prime
+    stats are the same too, since the primes are applied in the same order."""
     data = load(path, r, nt)
     used = set()
     tors = list(product(range(2), repeat=nt))
@@ -40,10 +50,50 @@ def run(path, r, nt, chain, cap=None, stats=None):
             assert Nn % N == 0
             k = Nn // N
             lifts = list(product(range(k), repeat=r))
-            if cap is not None and len(classes) * len(lifts) > cap:
-                history.append((Nn, len(classes) * len(lifts), 0, -1))
-                print(f"stage N={Nn}: would lift to {len(classes) * len(lifts)} classes > cap {cap}; stopping", flush=True)
-                return classes, history
+            total = len(classes) * len(lifts)
+            if cap is not None and total > cap:
+                if stream_cap is None or total > stream_cap:
+                    history.append((Nn, total, 0, -1))
+                    print(f"stage N={Nn}: would lift to {total} classes > cap {cap}; stopping", flush=True)
+                    return classes, history
+                # streamed lift + filter
+                sel = []
+                for (l, c1, c2, co, bits) in data:
+                    if l in used or Nn % c1:
+                        continue
+                    used.add(l)
+                    sel.append((l, c1, c2, [x[0] for x in co], [x[1] for x in co], bits))
+                nb, na, out = [0] * len(sel), [0] * len(sel), []
+                for c in classes:
+                    for L in lifts:
+                        cc = tuple(c[i] + L[i] * N for i in range(r)) + c[r:]
+                        ok = True
+                        for j, P in enumerate(sel):
+                            nb[j] += 1
+                            if not _passes(cc, P):
+                                ok = False
+                                break
+                            na[j] += 1
+                        if ok:
+                            out.append(cc)
+                            if len(out) > cap:
+                                history.append((Nn, total, len(sel), -1))
+                                print(f"stage N={Nn}: streamed survivors exceed cap {cap}; stopping", flush=True)
+                                return out, history
+                N = Nn
+                # primes no class reached (after the set became empty) count as unused, as in the
+                # materialised path, which stops at the first prime that empties the set
+                reached = [j for j in range(len(sel)) if nb[j] > 0]
+                if stats is not None:
+                    for j in reached:
+                        P = sel[j]
+                        stats.append((N, P[0], P[1], P[2], P[5].count("1") / len(P[5]), nb[j], na[j]))
+                classes = out
+                history.append((N, total, len(reached), len(classes)))
+                print(f"stage N={N}: {total} classes streamed, {len(reached)} new primes applied, {len(classes)} survive", flush=True)
+                if not classes:
+                    break
+                continue
             classes = [tuple(c[i] + L[i] * N for i in range(r)) + c[r:] for c in classes for L in lifts]
             N = Nn
         before = len(classes)

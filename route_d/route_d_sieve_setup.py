@@ -33,7 +33,7 @@ def main():
     kc = al * be * ga * s
     M = build(a, b, al, be, ga, (t0, z0, u20, u30))
     qd = M['qd'].all_coeffs()[::-1]
-    c_, d_ = sp.nsimplify(qd[2]), sp.nsimplify(qd[1])
+    c_, d_ = sp.Rational(qd[2]), sp.Rational(qd[1])      # exact; not sp.nsimplify (see route_d_fiber_model)
     q = M['q']
     ab, S2 = a * b, a * a + b * b
     psi = f"""psiF(x, y) = {{
@@ -72,7 +72,7 @@ def main():
             print("  (formula pole at generator", P, "- skipped in self-check)")
             continue
         _, z, u2, u3 = W_to_fiber(M, P)
-        Fpy = sp.nsimplify(ab * z * (S2 - z**2) * (ab * z - kc * u2 * u3))
+        Fpy = sp.Rational(ab * z * (S2 - z**2) * (ab * z - kc * u2 * u3))
         assert sp.Rational(g) == Fpy, (P, g, Fpy)
     print("psiF self-check against the python inverse map: OK")
     ntor = len(tors.strip("[]").split("], ["))

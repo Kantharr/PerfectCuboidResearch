@@ -29,7 +29,9 @@ def build(a, b, al, be, ga, O):
     assert sp.simplify(V0**2 - quart.subs(lam, lam0)) == 0
     qd = sp.Poly(sp.expand(quart.subs(lam, u + lam0)), u)       # v^2 = qd(u), qd(0) = V0^2
     co = qd.all_coeffs()[::-1] + [0] * 5
-    e_, d_, c_, b_, a_ = [sp.nsimplify(x) for x in co[:5]]
+    # exact rationals; sp.nsimplify can replace a rational by a wrong closed form
+    # (e.g. 3900699/5 -> 26460*5**(57/112)*6**(7/16)*7**(205/224) on 93:71 (5,2,11))
+    e_, d_, c_, b_, a_ = [sp.Rational(x) for x in co[:5]]
     q = V0
     # Connell / Mordell: v^2 = a u^4 + b u^3 + c u^2 + d u + q^2
     a1, a2, a3 = d_ / q, c_ - d_**2 / (4 * q**2), 2 * q * b_
@@ -39,10 +41,12 @@ def build(a, b, al, be, ga, O):
     Uf = (2 * q * (X + c_) - d_**2 / (2 * q)) / Y
     Vf = -q + Uf * (Uf * X - d_) / (2 * q)
     W = [a1, a2, a3, a4, a6]
-    # symbolic verification: forward map lands on the Weierstrass curve
-    wf = sp.simplify((Yf**2 + a1 * Xf * Yf + a3 * Yf - (Xf**3 + a2 * Xf**2 + a4 * Xf + a6))
-                     .subs(v, sp.sqrt(qd.as_expr())))
-    assert wf == 0, wf
+    # symbolic verification: forward map lands on the Weierstrass curve. Done exactly, by reducing
+    # the numerator modulo v^2 - qd(u); substituting v = sqrt(qd) and calling simplify() failed on
+    # 93:71 (5,2,11), where sympy rewrote the radical into fractional powers and missed the zero.
+    wf = sp.numer(sp.together(Yf**2 + a1 * Xf * Yf + a3 * Yf - (Xf**3 + a2 * Xf**2 + a4 * Xf + a6)))
+    red = sp.rem(sp.Poly(sp.expand(wf), v), sp.Poly(v**2 - qd.as_expr(), v))
+    assert all(sp.expand(c) == 0 for c in red.all_coeffs()), red
     return dict(zl=zl, u2l=u2l, den=den, lam0=lam0, qd=qd, q=q, W=W, Xf=Xf, Yf=Yf, Uf=Uf, Vf=Vf, c3=c3)
 
 def fiber_to_W(M, pt):
