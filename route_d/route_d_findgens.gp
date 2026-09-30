@@ -15,7 +15,12 @@
    gensentry(a, b) returns the KNOWNGENS entry [minimal model a-invariants, points on it].     */
 \r route_d_isogpoints.gp
 
-FG_H1 = 10^6; FG_H2 = 10^7; FG_EFF = 12;
+/* defaults, only where not already set (a params file read first must win; overwriting them here
+   made the 2026-09-29 passes 2 and 3 run with H2 = 1e7, about 4 h per line).  Stage 4 at 1e7
+   found 3 of the 8 generators found so far but costs hours per line, so the default is 1e6.     */
+if(type(FG_H1) == "t_POL", FG_H1 = 10^6);
+if(type(FG_H2) == "t_POL", FG_H2 = 10^6);
+if(type(FG_EFF) == "t_POL", FG_EFF = 12);
 
 coverpts(E, C, H, G, rk, tomap) =
 {
