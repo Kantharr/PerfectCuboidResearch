@@ -222,6 +222,10 @@ their generated PARI files and result tables into the current directory.
   `ROUTE_D_CHAIN`, `ROUTE_D_CLASS_CAP`, `ROUTE_D_STREAM_CAP` and `ROUTE_D_LMAX`
   set a finer level chain, the class caps (a streamed lift in `route_d_mwsieve.py`
   keeps only survivors in memory) and the prime bound; defaults are unchanged.
+  With `ROUTE_D_SIEVE_BIN` set to a build of **`route_d_sieve_stage.c`**
+  (`gcc -O2 -o route_d_sieve_stage route_d_sieve_stage.c`), each streamed stage runs
+  in C: identical survivors and per-prime counts, about 60 times faster (~6M
+  classes/s), which makes rank-4 fibers (10^9-10^10 lifted classes) feasible.
 - **`route_d_image_model.py`**, **`route_d_coset_sieve.py`**,
   **`route_d_minlevel.py`**, **`route_d_minlevel2.py`** — the "early death"
   analysis: an independence benchmark within the image of `E(ℚ)`, the full

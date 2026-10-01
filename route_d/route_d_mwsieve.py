@@ -10,7 +10,7 @@ A class (n_1..n_r, tau) mod N survives a prime l (c1 | N) iff its reduction
 lies in the allowed set. Soundness: generators are saturated at every prime
 dividing N, so every rational point lies in exactly one class.
 """
-import sys, ast
+import os, sys, ast
 from itertools import product
 
 
@@ -26,6 +26,32 @@ def load(path, r, nt):
         assert len(co) == r + nt
         data.append((int(l), int(c1), int(c2), co, bits))
     return data
+
+
+def _stage_c(binp, classes, sel, r, nt, N, k):
+    """One streamed stage in C (route_d_sieve_stage.c); same survivors and counts as the Python loop."""
+    import tempfile, subprocess
+    from array import array
+    m = r + nt
+    with tempfile.TemporaryDirectory() as td:
+        pf, ci, co, cf = (os.path.join(td, x) for x in ("primes.txt", "in.bin", "out.bin", "counts.txt"))
+        with open(pf, "w") as fh:
+            for (l, c1, c2, ca, cb, bits) in sel:
+                fh.write(f"{l} {c1} {c2} {' '.join(map(str, ca))} {' '.join(map(str, cb))} {bits}\n")
+        flat = array("i")
+        for c in classes:
+            flat.extend(c)
+        with open(ci, "wb") as fh:
+            flat.tofile(fh)
+        subprocess.run([binp, pf, ci, co, cf, str(r), str(nt), str(N), str(k)], check=True)
+        res = array("i")
+        with open(co, "rb") as fh:
+            res.frombytes(fh.read())
+        out = [tuple(res[i:i + m]) for i in range(0, len(res), m)]
+        lines = open(cf).read().split("\n")
+        nb = [int(x.split()[1]) for x in lines[:len(sel)]]
+        na = [int(x.split()[2]) for x in lines[:len(sel)]]
+    return out, nb, na
 
 
 def _passes(c, P):
@@ -63,8 +89,16 @@ def run(path, r, nt, chain, cap=None, stats=None, stream_cap=None):
                         continue
                     used.add(l)
                     sel.append((l, c1, c2, [x[0] for x in co], [x[1] for x in co], bits))
-                nb, na, out = [0] * len(sel), [0] * len(sel), []
-                for c in classes:
+                binp = os.environ.get("ROUTE_D_SIEVE_BIN")
+                if binp:
+                    out, nb, na = _stage_c(binp, classes, sel, r, nt, N, k)
+                    if len(out) > cap:
+                        history.append((Nn, total, len(sel), -1))
+                        print(f"stage N={Nn}: streamed survivors exceed cap {cap}; stopping", flush=True)
+                        return out, history
+                else:
+                    nb, na, out = [0] * len(sel), [0] * len(sel), []
+                for c in ([] if binp else classes):
                     for L in lifts:
                         cc = tuple(c[i] + L[i] * N for i in range(r)) + c[r:]
                         ok = True
