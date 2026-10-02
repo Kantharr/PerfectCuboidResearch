@@ -11,6 +11,8 @@ Sel2 is computed exactly as in route_d_selmer2.py (complete 2-descent over the f
 
 Usage:  python route_d_selmer_lines.py 49:5 11:3 ...      (prints dim Sel2 and the fibre classes)
         python route_d_selmer_lines.py --lines L.json     (writes selmer_<L>.json)
+        python route_d_selmer_lines.py --isogenous L.json (Sel2 of E' = E/<(0,0)>, as a gp file
+                                                          SEL1.gp for route_d_isocoset.gp)
 Checked on the 54 survey lines: the clean classes are exactly the survey's locally solvable clean
 kernels; and on 96 lines dim Sel2 = (ellrank upper bound) + 2 + s.
 """
@@ -49,8 +51,14 @@ def nullspace_f2(rows, n):
     return basis
 
 def selmer_elements(a, b):
-    s = a * a + b * b; es = (0, a * a * s, b * b * s)
-    disc = 16 * (es[1] * es[2] * (es[1] - es[2])) ** 2
+    s = a * a + b * b
+    return selmer_elements_es((0, a * a * s, b * b * s))
+
+
+def selmer_elements_es(es):
+    """Sel2 of y^2 = (x - e1)(x - e2)(x - e3) with e1 = 0, as (core(d1), core(d2)) for x -> (x - e1, x - e2)."""
+    s = None
+    disc = 16 * ((es[1] - es[0]) * (es[2] - es[0]) * (es[1] - es[2])) ** 2
     S = sorted(sp.factorint(disc).keys())
     g = [-1] + S
     basis = [(x, 1) for x in g] + [(1, x) for x in g]
@@ -88,7 +96,16 @@ def fibre_classes(a, b):
     return dim, out
 
 if __name__ == "__main__":
-    if sys.argv[1] == "--lines":
+    if sys.argv[1] == "--isogenous":
+        import json, os
+        out = []
+        for a, b in json.load(open(sys.argv[2])):
+            s2 = a * a + b * b
+            dim, E = selmer_elements_es((0, -s2 * (a - b) ** 2, -s2 * (a + b) ** 2))
+            out.append(f"SEL1_{a}_{b} = {json.dumps([list(c) for c in E])};")
+            print(f"{a}:{b}  dim Sel2(E') = {dim}", flush=True)
+        open("SEL1.gp", "w").write("\n".join(out) + "\n")
+    elif sys.argv[1] == "--lines":
         import json, os
         lines = json.load(open(sys.argv[2]))
         out = {}
