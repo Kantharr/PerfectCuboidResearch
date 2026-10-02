@@ -27,6 +27,7 @@ CERT_MAX_CLASSES = int(os.environ.get("ROUTE_D_CERT_MAX", "20000"))
 CLASS_CAP = int(os.environ.get("ROUTE_D_CLASS_CAP", "30000000"))
 STREAM_CAP = int(os.environ["ROUTE_D_STREAM_CAP"]) if os.environ.get("ROUTE_D_STREAM_CAP") else None
 LMAX = os.environ.get("ROUTE_D_LMAX", "300000")
+NMAX = os.environ.get("ROUTE_D_NMAX", "5040")     # top sieve level; primes with c1 | NMAX are used
 
 
 def gp_run(src, timeout):
@@ -56,7 +57,7 @@ def one(a, b, al, be, ga, log, known_bp=None):
     rec["base"] = bp
     try:
         so = subprocess.run([sys.executable, os.path.join(HERE, "route_d_sieve_setup.py"), str(a), str(b), str(al), str(be), str(ga),
-                             *map(str, bp), "5040", LMAX, tag], capture_output=True, text=True, timeout=900)
+                             *map(str, bp), NMAX, LMAX, tag], capture_output=True, text=True, timeout=900)
     except subprocess.TimeoutExpired:
         rec.update(status="SKIP: setup timeout (rank/saturation)"); return rec
     if not os.path.exists(f"fiber_{tag}.json") or "rank not proven" in so.stderr + so.stdout or so.returncode:
