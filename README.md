@@ -294,6 +294,11 @@ their generated PARI files and result tables into the current directory.
   the components of `E(ℝ)`). Validated on base-changed `E_{a,b}` and by root-number parity on
   48 twists. Proves rank 0 for the `E3` twists of both clean fibres of 81:19, where Simon's
   descent in Sage gave only 1–2.
+- **`route_d_weilres_fibre.gp`** — the finite check of a fibre once a quotient `D_h/ρ̃` has
+  rank 0 over `K`: builds `V² = T(u) + 2N₀(u)` from the trace and norm of `hF` along the lines
+  through `−B₁`, proves rank 0 on its own model with `route_d_kdescent.gp`, and lists the rational
+  points of `D_h` over the `u`-coordinates of its torsion points and the exceptional `u`. Settles
+  both clean fibres of 81:19 (only degenerate points), so the line 81:19 is resolved.
 - **`route_d_g2height.gp`** — BSD estimate of how large a missing generator is on each
   curve of the isogeny class (`L''(E,1)` from `ellanalyticrank`, regulator ratios
   from `ellbsd`, Sha assumed trivial). On the 8 lines still missing a generator it
