@@ -281,6 +281,13 @@ their generated PARI files and result tables into the current directory.
   generator has about a quarter of its height: on 2026-10-02 it found 6 of the 14
   missing generators (59:31, 63:1, 81:47, 83:81, 99:31, 99:79) in under 2 minutes
   each, 4 of them on a 4-isogenous curve that the earlier searches never used.
+- **`route_d_weilres_rank0.gp`** and **`sage/weilres_simon.sage`** — the rank-0 route for a
+  clean fibre, which needs nothing about `E_{a,b}`: if a twist `E3^(αγδ3)` or `E4^(βγδ4)`
+  of Theorem weilres has rank 0 over `K = Q(√σ)`, the fibre's rational points lie over its
+  finite torsion. The gp file builds both twists over `K` with root number, conductor
+  norm and torsion; the Sage script bounds the rank with Simon's 2-descent over `K` on
+  every curve 2-isogenous to the twist (`limbigprime=0`). Simon's bound is weak on this
+  family (3 on 11:3, whose rank is 0), so it rarely proves rank 0 by itself.
 - **`route_d_g2height.gp`** — BSD estimate of how large a missing generator is on each
   curve of the isogeny class (`L''(E,1)` from `ellanalyticrank`, regulator ratios
   from `ellbsd`, Sha assumed trivial). On the 8 lines still missing a generator it
