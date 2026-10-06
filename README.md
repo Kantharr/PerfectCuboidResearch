@@ -288,6 +288,12 @@ their generated PARI files and result tables into the current directory.
   norm and torsion; the Sage script bounds the rank with Simon's 2-descent over `K` on
   every curve 2-isogenous to the twist (`limbigprime=0`). Simon's bound is weak on this
   family (3 on 11:3, whose rank is 0), so it rarely proves rank 0 by itself.
+- **`route_d_kdescent.gp`** — exact 2-descent over the real quadratic field `K = Q(√σ)` for a
+  curve with full 2-torsion over `K`, plus the three 2-isogeny descents (local square classes by
+  `ideallog` mod `v^(2e+1)`, local images sampled up to their exact size, real places read off
+  the components of `E(ℝ)`). Validated on base-changed `E_{a,b}` and by root-number parity on
+  48 twists. Proves rank 0 for the `E3` twists of both clean fibres of 81:19, where Simon's
+  descent in Sage gave only 1–2.
 - **`route_d_g2height.gp`** — BSD estimate of how large a missing generator is on each
   curve of the isogeny class (`L''(E,1)` from `ellanalyticrank`, regulator ratios
   from `ellbsd`, Sha assumed trivial). On the 8 lines still missing a generator it
