@@ -40,3 +40,6 @@ build.log
 
 # The paper PDF (and any other PDF) never goes into this repository
 *.pdf
+
+# Lean build output (Mathlib packages are hard links; never commit them)
+lean/.lake/

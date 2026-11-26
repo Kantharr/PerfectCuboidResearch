@@ -26,6 +26,7 @@ This repo does **not** contain the paper's LaTeX source, only the tools.
 ├── route_a_kernel/                                -- kernel decomposition & Gaussian-integer search (§4, Route A)
 ├── route_e/                                       -- Theorem 3.9 criterion scan (§6, Route E)
 ├── route_f/                                       -- squarefree-kernel / survivor scan (§6, Route F, Conjecture 6.3)
+├── lean/                                          -- Lean 4 + Mathlib formalization of the paper's elementary results
 └── route_d/                                       -- elliptic-curve fiber construction (§6, Route D, Conjecture 6.3),
     │                                                 fiber exclusion (Mordell–Weil sieve), and the Jacobian of the
     │                                                 cuboid cover C (Theorems 6.4 and 6.5)
@@ -361,6 +362,34 @@ their twist data), `prym_psi3_rank.sage` (Simon 2-descent on the ψ₃ curve),
 check). Run them from `route_d/` as `sage sage/<file>.sage`; `prym_twist.sage`
 reads `sage/prym_split.sage` by that relative path. They were run with the
 `sagemath/sagemath:10.9` Docker image.
+
+## `lean/` -- Lean 4 + Mathlib formalization
+
+A Lake project pinned to Lean `v4.36.0` and Mathlib `v4.36.0`. The target is the
+formal-conjectures statement `EulerBrick.perfect_euler_brick_existence`
+(`FormalConjectures/Wikipedia/EulerBrick.lean`, commit d9f6ffa8dd7f), whose definitions
+are copied verbatim into `PerfectCuboid/Statement.lean` and proved equivalent to our
+`Cuboid` structure. No `sorry`; only the standard axioms.
+
+| File | Paper result | Lean name |
+|---|---|---|
+| `Statement.lean` | problem statement | `IsEulerBrick`, `IsPerfectCuboid`, `FormalConjecturesStatement`, `Cuboid`, `formalConjectures_iff` |
+| `Basic.lean` | `lem:distinct`, `rem:labelling`, `prop:param`, `lem:order`, `thm:parity` | `Cuboid.A_ne_B`, `not_two_odd`, `IsPrimitive.one_odd`, `exists_normal`, `Cuboid.param_B/C/D`, `Cuboid.order`, `Cuboid.parity`, `Cuboid.odd_xyz` |
+| `Master.lean` | `thm:master`, `prop:identity`, `prop:u0`, `prop:radicand`, `cor:simplified`, `thm:minus`, `prop:positivity` | `master`, `identity`, `Q_mod_eight`, `Q_ne_zero`, `exists_kappa`, `simplified`, `kappa_pos`, `Q_pos`, `Cuboid.necessary` |
+| `Case1.lean` | `thm:quartic` (as hypothesis), `thm:case1` | `QuarticHyp`, `quartic_of_hyp`, `no_case1`, `Cuboid.not_case1`, `exists_iff_case2` |
+
+`thm:case1` is proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square only
+when p² = q²), the statement the paper's elliptic-curve argument establishes; the
+rank-0 step needs Mordell-Weil, which Mathlib lacks.
+
+Build, from `lean/` (elan from https://github.com/leanprover/elan):
+
+```
+lake build Mathlib --no-build   # must say "All targets up-to-date"; never compile Mathlib
+lake build                      # our files, about a minute
+```
+
+If `.lake/packages` is missing, `lake exe cache get` downloads the prebuilt Mathlib.
 
 ## Reproducing the paper's key computational claims
 
