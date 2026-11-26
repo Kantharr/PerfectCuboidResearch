@@ -6,8 +6,10 @@ import PerfectCuboid.Master
 `QuarticHyp` is the statement the paper proves in `thm:quartic` through the elliptic curve
 `V² = U³ - 7U - 6` (rank `0`, torsion `ℤ/2 × ℤ/2`): the curve `Y² = -W⁴ + 3W² - 1` has
 only the rational points with `W = ±1`. In integers: `3p²q² - p⁴ - q⁴` is a square only
-when `p² = q²`. The rank computation needs the Mordell-Weil theorem, which Mathlib does not
-have, so it is taken here as a hypothesis.
+when `p² = q²`. The paper's rank computation needs the Mordell-Weil theorem, which Mathlib
+does not have, so it is stated here as a hypothesis; `Quartic.lean` then proves it by an
+elementary infinite descent (`quarticHyp`), making `thm:case1` unconditional
+(`Cuboid.not_case1'`, `exists_iff_case2'`).
 
 * `quartic_of_hyp`: the paper's form of `thm:quartic` (`3a⁴b⁴ - a⁸ - b⁸ = c²` forces
   `a = ±b`) follows, with `p = a²`, `q = b²`.

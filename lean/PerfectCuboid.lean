@@ -9,3 +9,4 @@ import PerfectCuboid.Kernels
 import PerfectCuboid.Case1Param
 import PerfectCuboid.Integrality
 import PerfectCuboid.Examples
+import PerfectCuboid.Quartic

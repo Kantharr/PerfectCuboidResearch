@@ -384,10 +384,13 @@ are copied verbatim into `PerfectCuboid/Statement.lean` and proved equivalent to
 | `Case1Param.lean` | `lem:case1param`, `prop:case1form` | `case1param`, `case1_quantities`, `case1_kappa`, `case1form`, `Nplus_pos`, `Nminus_pos_iff` (N₋ > 0 iff a/b > √φ) |
 | `Integrality.lean` | `prop:integrality`, `cor:sf` | `integrality`, `integrality_gcd`, `A_sq_eq_mul`, `isSquare_mul_iff`, `sf_lt` |
 | `Examples.lean` | `rem:generic`, Table 1 survivors | `no_cuboid_of`, `no_cuboid_423_399_329`, `no_cuboid_1287_507_473`, `table1_data`, `generic_example` |
+| `Quartic.lean` | `thm:quartic`, proved by elementary descent; `thm:case1` unconditional | `pyth_param`, `C1Sol`, `C1_descent`, `no_C1` (x⁴ + 3x²y² + y⁴ = z² has no nontrivial solution), `quartic_ordered`, `quarticHyp`, `Cuboid.not_case1'`, `exists_iff_case2'` |
 
-`thm:case1` is proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square only
-when p² = q²), the statement the paper's elliptic-curve argument establishes; the
-rank-0 step needs Mordell-Weil, which Mathlib lacks.
+`thm:case1` is first proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square
+only when p² = q²), the statement the paper's elliptic-curve argument establishes.
+`Quartic.lean` then proves `QuarticHyp` by Fermat's infinite descent, with no elliptic
+curves: the quartic reduces to x⁴ + 3x²y² + y⁴ = z², which descends to itself with a
+smaller xy. So `thm:case1` holds unconditionally.
 
 Build, from `lean/` (elan from https://github.com/leanprover/elan):
 
