@@ -377,6 +377,9 @@ are copied verbatim into `PerfectCuboid/Statement.lean` and proved equivalent to
 | `Basic.lean` | `lem:distinct`, `rem:labelling`, `prop:param`, `lem:order`, `thm:parity` | `Cuboid.A_ne_B`, `not_two_odd`, `IsPrimitive.one_odd`, `exists_normal`, `Cuboid.param_B/C/D`, `Cuboid.order`, `Cuboid.parity`, `Cuboid.odd_xyz` |
 | `Master.lean` | `thm:master`, `prop:identity`, `prop:u0`, `prop:radicand`, `cor:simplified`, `thm:minus`, `prop:positivity` | `master`, `identity`, `Q_mod_eight`, `Q_ne_zero`, `exists_kappa`, `simplified`, `kappa_pos`, `Q_pos`, `Cuboid.necessary` |
 | `Case1.lean` | `thm:quartic` (as hypothesis), `thm:case1` | `QuarticHyp`, `quartic_of_hyp`, `no_case1`, `Cuboid.not_case1`, `exists_iff_case2` |
+| `Converse.lean` | `prop:converse`, `lem:onevar` | `A_sq_mul_Q` (A²Q = m(m+κ)), `master_of_branch`, `converse`, `onevar`, `dvd_A_sq_of_coprime_x/y/z` |
+| `Valuation.lean` | `thm:twovar`, `lem:twovar` | `ExactPow` (exact prime powers in ℤ), `twovar_lt`, `twovar_eq_good`, `twovar_eq_bad` |
+| `ConverseFull.lean` | `thm:converse-full` | `BadPair`, `BadPrime`, `pair_dvd`, `setup_xy/xz/yz`, `dvd_of_prime_pow_dvd`, `converse_full` |
 
 `thm:case1` is proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square only
 when p² = q²), the statement the paper's elliptic-curve argument establishes; the
