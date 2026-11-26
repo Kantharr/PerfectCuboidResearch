@@ -5,3 +5,4 @@ import PerfectCuboid.Case1
 import PerfectCuboid.Converse
 import PerfectCuboid.Valuation
 import PerfectCuboid.ConverseFull
+import PerfectCuboid.Kernels

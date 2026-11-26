@@ -380,6 +380,7 @@ are copied verbatim into `PerfectCuboid/Statement.lean` and proved equivalent to
 | `Converse.lean` | `prop:converse`, `lem:onevar` | `A_sq_mul_Q` (A²Q = m(m+κ)), `master_of_branch`, `converse`, `onevar`, `dvd_A_sq_of_coprime_x/y/z` |
 | `Valuation.lean` | `thm:twovar`, `lem:twovar` | `ExactPow` (exact prime powers in ℤ), `twovar_lt`, `twovar_eq_good`, `twovar_eq_bad` |
 | `ConverseFull.lean` | `thm:converse-full` | `BadPair`, `BadPrime`, `pair_dvd`, `setup_xy/xz/yz`, `dvd_of_prime_pow_dvd`, `converse_full` |
+| `Kernels.lean` | `thm:kernels` (i)-(iv), `cor:altitude`, `rem:altitude`, `prop:characters` | `kernel_decomp`, `Kernels`, `exists_kernels`, `Kernels.sq_eq`, `Kernels.coprime_xyz`, `Kernels.dvd_y_sq_add_z_sq` (and `x`, `x-y` versions), `Kernels.mod_four`, `Kernels.two_adic`, `not_all_squares`, `altitude_example`, `Kernels.char_gamma/alpha/beta`, `Cuboid.exists_kernels` |
 
 `thm:case1` is proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square only
 when p² = q²), the statement the paper's elliptic-curve argument establishes; the
