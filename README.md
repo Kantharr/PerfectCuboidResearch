@@ -381,6 +381,9 @@ are copied verbatim into `PerfectCuboid/Statement.lean` and proved equivalent to
 | `Valuation.lean` | `thm:twovar`, `lem:twovar` | `ExactPow` (exact prime powers in ℤ), `twovar_lt`, `twovar_eq_good`, `twovar_eq_bad` |
 | `ConverseFull.lean` | `thm:converse-full` | `BadPair`, `BadPrime`, `pair_dvd`, `setup_xy/xz/yz`, `dvd_of_prime_pow_dvd`, `converse_full` |
 | `Kernels.lean` | `thm:kernels` (i)-(iv), `cor:altitude`, `rem:altitude`, `prop:characters` | `kernel_decomp`, `Kernels`, `exists_kernels`, `Kernels.sq_eq`, `Kernels.coprime_xyz`, `Kernels.dvd_y_sq_add_z_sq` (and `x`, `x-y` versions), `Kernels.mod_four`, `Kernels.two_adic`, `not_all_squares`, `altitude_example`, `Kernels.char_gamma/alpha/beta`, `Cuboid.exists_kernels` |
+| `Case1Param.lean` | `lem:case1param`, `prop:case1form` | `case1param`, `case1_quantities`, `case1_kappa`, `case1form`, `Nplus_pos`, `Nminus_pos_iff` (N₋ > 0 iff a/b > √φ) |
+| `Integrality.lean` | `prop:integrality`, `cor:sf` | `integrality`, `integrality_gcd`, `A_sq_eq_mul`, `isSquare_mul_iff`, `sf_lt` |
+| `Examples.lean` | `rem:generic`, Table 1 survivors | `no_cuboid_of`, `no_cuboid_423_399_329`, `no_cuboid_1287_507_473`, `table1_data`, `generic_example` |
 
 `thm:case1` is proved conditionally on `QuarticHyp` (3p²q² - p⁴ - q⁴ is a square only
 when p² = q²), the statement the paper's elliptic-curve argument establishes; the

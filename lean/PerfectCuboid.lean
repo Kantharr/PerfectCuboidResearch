@@ -6,3 +6,6 @@ import PerfectCuboid.Converse
 import PerfectCuboid.Valuation
 import PerfectCuboid.ConverseFull
 import PerfectCuboid.Kernels
+import PerfectCuboid.Case1Param
+import PerfectCuboid.Integrality
+import PerfectCuboid.Examples
